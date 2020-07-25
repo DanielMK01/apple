@@ -11,7 +11,7 @@ import SwiftUI
 import UIKit
 import RealmSwift
 
-@available(iOS 13.0, *)
+@available(iOS 14.0, *)
 struct ZimFileDetailView: View {
     @ObservedObject private var viewModel: ViewModel
     
@@ -22,15 +22,26 @@ struct ZimFileDetailView: View {
     var body: some View {
         List {
             Section {
+                Button(action: {
+                    
+                }) {
+                    HStack {
+                        Spacer()
+                        Text("Open Main Page").fontWeight(.medium)
+                        Spacer()
+                    }
+                }
+            }
+            Section {
                 TitleDetailListRow(title: "Language", detail:  viewModel.language)
                 TitleDetailListRow(title: "Size", detail:  viewModel.size)
                 TitleDetailListRow(title: "Date", detail:  viewModel.creationDate)
             }
             Section {
-                TitleDetailListRow(title: "Index", detail:  viewModel.hasIndex)
-                TitleDetailListRow(title: "Pictures", detail:  viewModel.hasPictures)
-                TitleDetailListRow(title: "Videos", detail:  viewModel.hasVideos)
-                TitleDetailListRow(title: "Details", detail:  viewModel.hasDetails)
+                CapabilityListRow(title: "Index", isAvailable: viewModel.zimFile.hasIndex)
+                CapabilityListRow(title: "Pictures", isAvailable: viewModel.zimFile.hasPictures)
+                CapabilityListRow(title: "Videos", isAvailable: viewModel.zimFile.hasVideos)
+                CapabilityListRow(title: "Details", isAvailable: viewModel.zimFile.hasDetails)
             }
             Section {
                 TitleDetailListRow(title: "Article Count", detail:  viewModel.articleCount)
@@ -56,33 +67,34 @@ struct ZimFileDetailView: View {
                 }
             }
         }
-    .listRowInsets(EdgeInsets(top: 0, leading: 150, bottom: 0, trailing: 150))
-        .listStyle(GroupedListStyle())
-        .environment(\.horizontalSizeClass, .regular)
+        .listStyle(InsetGroupedListStyle())
+        .navigationTitle(viewModel.zimFile.title)
     }
 }
 
-//@available(iOS 13.0, *)
-//extension View {
-//
-//    func readableGuidePadding() -> some View {
-//        modifier(ReadableGuidePadding())
-//    }
-//
-//}
-//
-//@available(iOS 13.0, *)
-//private struct ReadableGuidePadding: ViewModifier {
-//
-//    @Environment(\.horizontalSizeClass) var horizontal
-//
-//    func body(content: Content) -> some View {
-//       content.padding(.horizontal, horizontal == .regular ? 84: 16)
-//    }
-//
-//}
+@available(iOS 14.0, *)
+fileprivate struct CapabilityListRow: View {
+    let title: String
+    let isAvailable: Bool
 
-@available(iOS 13.0, *)
+    var body: some View {
+        HStack {
+            Text(title)
+            Spacer()
+            if isAvailable {
+                Image(systemName: "checkmark.circle.fill")
+                    .imageScale(.large)
+                    .foregroundColor(.green)
+            } else{
+                Image(systemName: "xmark.circle.fill")
+                    .imageScale(.large)
+                    .foregroundColor(.red)
+            }
+        }
+    }
+}
+
+@available(iOS 14.0, *)
 fileprivate class ViewModel: ObservableObject {
     private let database = try? Realm(configuration: Realm.defaultConfig)
     let zimFile: ZimFile
@@ -103,22 +115,6 @@ fileprivate class ViewModel: ObservableObject {
     
     var creationDate: String {
         zimFile.creationDateDescription ?? unknown
-    }
-    
-    var hasIndex: String {
-        zimFile.hasIndex ? "Yes" : "No"
-    }
-    
-    var hasPictures: String {
-        zimFile.hasPictures ? "Yes" : "No"
-    }
-    
-    var hasVideos: String {
-        zimFile.hasVideos ? "Yes" : "No"
-    }
-    
-    var hasDetails: String {
-        zimFile.hasDetails ? "Yes" : "No"
     }
     
     var articleCount: String {
@@ -146,7 +142,7 @@ fileprivate class ViewModel: ObservableObject {
     }
 }
 
-@available(iOS 13.0, *)
+@available(iOS 14.0, *)
 struct ZimFileDetailView_Previews: PreviewProvider {
     static var previews: some View {
         let zimFile = ZimFile(value: [
@@ -167,7 +163,7 @@ struct ZimFileDetailView_Previews: PreviewProvider {
     }
 }
 
-@available(iOS 13.0, *)
+@available(iOS 14.0, *)
 class ZimFileDetailController: UIHostingController<ZimFileDetailView> {
     convenience init(zimFile: ZimFile) {
         self.init(rootView: ZimFileDetailView(zimFile: zimFile))

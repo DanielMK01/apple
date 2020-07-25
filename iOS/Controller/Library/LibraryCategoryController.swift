@@ -220,7 +220,7 @@ class LibraryCategoryController: UIViewController, UITableViewDataSource, UITabl
         defer { tableView.deselectRow(at: indexPath, animated: true) }
         guard let result = results[languageCodes[indexPath.section]] else { return }
         let controller: UIViewController = {
-            if #available(iOS 13.0, *) {
+            if #available(iOS 14.0, *) {
                 return ZimFileDetailController(zimFile: result[indexPath.row])
             } else {
                 return LibraryZimFileDetailController(zimFile: result[indexPath.row])
