@@ -21,16 +21,19 @@ struct ZimFileDetailView: View {
     
     var body: some View {
         List {
-            Section {
+            if viewModel.zimFileState == .onDevice {
                 Button(action: {
                     
-                }) {
-                    HStack {
-                        Spacer()
-                        Text("Open Main Page").fontWeight(.medium)
-                        Spacer()
-                    }
-                }
+                }, label: {
+                    CenteredButtonLabel(text: "Open Main Page")
+                })
+            }
+            if viewModel.zimFileState == .remote {
+                Button(action: {
+                    
+                }, label: {
+                    CenteredButtonLabel(text: "Download")
+                })
             }
             Section {
                 TitleDetailListRow(title: "Language", detail:  viewModel.language)
@@ -54,21 +57,29 @@ struct ZimFileDetailView: View {
             Section {
                 TitleDetailListRow(title: "ID", detail:  viewModel.shortID)
             }
-            Section {
+            if viewModel.zimFileState == .onDevice {
                 Button(action: {
                     
-                }) {
-                    HStack {
-                        Spacer()
-                        Text("Delete File").fontWeight(.medium)
-                        Spacer()
-                    }
-                    .foregroundColor(.red)
-                }
+                }, label: {
+                    CenteredButtonLabel(text: "Delete File").foregroundColor(.red)
+                })
             }
         }
         .listStyle(InsetGroupedListStyle())
         .navigationTitle(viewModel.zimFile.title)
+    }
+}
+
+@available(iOS 14.0, *)
+fileprivate struct CenteredButtonLabel: View {
+    let text: String
+    
+    var body: some View {
+        HStack {
+            Spacer()
+            Text(text).fontWeight(.medium)
+            Spacer()
+        }
     }
 }
 
@@ -96,14 +107,32 @@ fileprivate struct CapabilityListRow: View {
 
 @available(iOS 14.0, *)
 fileprivate class ViewModel: ObservableObject {
-    private let database = try? Realm(configuration: Realm.defaultConfig)
     let zimFile: ZimFile
+    @State private(set) var zimFileState: ZimFile.State
+    
+    private let database = try? Realm(configuration: Realm.defaultConfig)
+    private var token : NotificationToken?
     private let unknown = "Unknown"
     private let countFormatter: NumberFormatter = {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
         return formatter
     }()
+    
+    init(_ zimFile: ZimFile) {
+        self.zimFile = zimFile
+        self.zimFileState = zimFile.state
+        self.token = zimFile.observe { [unowned self] change in
+            switch change {
+            case .change(zimFile, _):
+                zimFileState = zimFile.state
+            case .deleted:
+                break
+            default:
+                break
+            }
+        }
+    }
     
     var language: String {
         Locale.current.localizedString(forLanguageCode: zimFile.languageCode) ?? unknown
@@ -136,14 +165,10 @@ fileprivate class ViewModel: ObservableObject {
     var shortID: String {
         String(zimFile.id.prefix(8))
     }
-    
-    init(_ zimFile: ZimFile) {
-        self.zimFile = zimFile
-    }
 }
 
 @available(iOS 14.0, *)
-struct ZimFileDetailView_Previews: PreviewProvider {
+fileprivate struct ZimFileDetailView_Previews: PreviewProvider {
     static var previews: some View {
         let zimFile = ZimFile(value: [
             "id": "d87a3cf1-545b-49a0-ad51-108547970796",
