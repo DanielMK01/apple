@@ -219,7 +219,13 @@ class LibraryCategoryController: UIViewController, UITableViewDataSource, UITabl
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         defer { tableView.deselectRow(at: indexPath, animated: true) }
         guard let result = results[languageCodes[indexPath.section]] else { return }
-        let controller = LibraryZimFileDetailController(zimFile: result[indexPath.row])
+        let controller: UIViewController = {
+            if #available(iOS 13.0, *) {
+                return ZimFileDetailController(zimFile: result[indexPath.row])
+            } else {
+                return LibraryZimFileDetailController(zimFile: result[indexPath.row])
+            }
+        }()
         navigationController?.pushViewController(controller, animated: true)
     }
 }

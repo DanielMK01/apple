@@ -8,9 +8,8 @@
 
 import Combine
 import SwiftUI
+import UIKit
 import RealmSwift
-
-
 
 @available(iOS 13.0, *)
 struct ZimFileDetailView: View {
@@ -53,14 +52,35 @@ struct ZimFileDetailView: View {
                         Text("Delete File").fontWeight(.medium)
                         Spacer()
                     }
+                    .foregroundColor(.red)
                 }
-                .foregroundColor(.red)
             }
         }
+    .listRowInsets(EdgeInsets(top: 0, leading: 150, bottom: 0, trailing: 150))
         .listStyle(GroupedListStyle())
         .environment(\.horizontalSizeClass, .regular)
     }
 }
+
+//@available(iOS 13.0, *)
+//extension View {
+//
+//    func readableGuidePadding() -> some View {
+//        modifier(ReadableGuidePadding())
+//    }
+//
+//}
+//
+//@available(iOS 13.0, *)
+//private struct ReadableGuidePadding: ViewModifier {
+//
+//    @Environment(\.horizontalSizeClass) var horizontal
+//
+//    func body(content: Content) -> some View {
+//       content.padding(.horizontal, horizontal == .regular ? 84: 16)
+//    }
+//
+//}
 
 @available(iOS 13.0, *)
 fileprivate class ViewModel: ObservableObject {
@@ -144,5 +164,12 @@ struct ZimFileDetailView_Previews: PreviewProvider {
             "publisher": "Kiwix"
         ])
         return ZimFileDetailView(zimFile: zimFile)
+    }
+}
+
+@available(iOS 13.0, *)
+class ZimFileDetailController: UIHostingController<ZimFileDetailView> {
+    convenience init(zimFile: ZimFile) {
+        self.init(rootView: ZimFileDetailView(zimFile: zimFile))
     }
 }
