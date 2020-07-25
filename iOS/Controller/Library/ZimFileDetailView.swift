@@ -67,6 +67,11 @@ struct ZimFileDetailView: View {
         }
         .listStyle(InsetGroupedListStyle())
         .navigationTitle(viewModel.zimFile.title)
+        .onAppear {
+            UITableView.appearance(
+                whenContainedInInstancesOf: [ZimFileDetailController.self]
+            ).cellLayoutMarginsFollowReadableWidth = true
+        }
     }
 }
 
