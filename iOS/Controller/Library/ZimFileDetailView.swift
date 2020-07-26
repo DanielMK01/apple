@@ -28,12 +28,17 @@ struct ZimFileDetailView: View {
                     CenteredButtonLabel(text: "Open Main Page")
                 })
             }
-            if viewModel.zimFileState == .remote {
-                Button(action: {
-                    
-                }, label: {
-                    CenteredButtonLabel(text: "Download")
-                })
+            Section {
+                switch viewModel.zimFileState {
+                case .remote:
+                    Button(action: {
+                        DownloadService.shared.start(zimFileID: viewModel.zimFile.id, allowsCellularAccess: false)
+                    }, label: {
+                        CenteredButtonLabel(text: "Download")
+                    })
+                default:
+                    Text("")
+                }
             }
             Section {
                 TitleDetailListRow(title: "Language", detail:  viewModel.language)
@@ -113,7 +118,7 @@ fileprivate struct CapabilityListRow: View {
 @available(iOS 14.0, *)
 fileprivate class ViewModel: ObservableObject {
     let zimFile: ZimFile
-    @State private(set) var zimFileState: ZimFile.State
+    @Published private(set) var zimFileState: ZimFile.State
     
     private let database = try? Realm(configuration: Realm.defaultConfig)
     private var token : NotificationToken?
