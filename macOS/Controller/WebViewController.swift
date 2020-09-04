@@ -46,7 +46,37 @@ class WebViewController: NSViewController, WKNavigationDelegate {
     
     // MARK: - WKNavigationDelegate
     
+    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        guard let url = navigationAction.request.url else { decisionHandler(.cancel); return }
+        if url.isKiwixURL {
+            guard let zimFileID = url.host else { decisionHandler(.cancel); return }
+            if let redirectedPath = ZimMultiReader.shared.getRedirectedPath(zimFileID: zimFileID, contentPath: url.path),
+                let redirectedURL = URL(zimFileID: zimFileID, contentPath: redirectedPath) {
+                decisionHandler(.cancel)
+                load(url: redirectedURL)
+            } else {
+                decisionHandler(.allow)
+            }
+        } else if url.scheme == "http" || url.scheme == "https" {
+            decisionHandler(.allow)
+        } else {
+            decisionHandler(.cancel)
+        }
+    }
+    
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         view.window?.title = webView.title ?? ""
+    }
+    
+    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+        guard let error = error as? URLError,
+              error.code == .resourceUnavailable,
+              let window = view.window else { return }
+        let alert = NSAlert()
+        alert.messageText = "Unable to open link."
+        alert.informativeText = "The link you clicked on cannot be opened."
+        alert.alertStyle = .critical
+        alert.addButton(withTitle: "OK")
+        alert.beginSheetModal(for: window, completionHandler: nil)
     }
 }

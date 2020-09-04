@@ -1,6 +1,19 @@
+## 1.13.5
+
+- added alert for when zim file of a bookmarked article is missing
+- article loading speed improvements (especially on articles with a lot of images and on more recent devices)
+- updated libkiwix version
+
+## 1.13.4
+
+- bookmark snippets are now using the first sentence (iOS 12 and above) or the first paragraph (iOS 11)
+- small tweaks of sidebar and outline for a better UX
+- fix: now use zim file title as bookmark title when the article doesn't have a title
+
 ## 1.13.3
 
 - stability improvements to the under the hood file download sub-system
+- stability improvements to search filters
 
 ## 1.13.2
 
